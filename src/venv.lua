@@ -1,8 +1,8 @@
 ----------------------------------------------------------------------------
--- $Id: venv.lua,v 1.6 2005-02-23 11:51:25 tomas Exp $
+-- $Id: venv.lua,v 1.7 2005-03-22 10:04:16 tomas Exp $
 ----------------------------------------------------------------------------
 
-local preload = package.preload
+local ipairs, pairs = ipairs, pairs
 
 ----------------------------------------------------------------------------
 -- control to prevent an explicitly set global to be re-inherited
@@ -57,25 +57,36 @@ local function newIndex(t, key, val)
   rawset(t, key, val)
 end
 
+local newcontrolledtable
+
 ----------------------------------------------------------------------------
 -- "index" function for the new environment
 ----------------------------------------------------------------------------
 local function createIndex(parent)
+  local newcontrolledtable = newcontrolledtable
   return function(t, key)
            if getcontrol(t, key) then return nil end
            v = parent[key]
            if v == nil then return nil end
            if type(v) == "table" then
-            local nv = {}
-            setmetatable(nv, {__index = createIndex(v),
-                              __newindex = newIndex})
+            local nv = newcontrolledtable(v)
             v = nv
-            createcontrol(v)
            end
            setcontrol(t, key)
            rawset(t,key,v)
            return v
          end
+end
+
+----------------------------------------------------------------------------
+-- create a new table which inherits its fields from the given table.
+----------------------------------------------------------------------------
+newcontrolledtable = function (inherit)
+  local newt = {}
+  setmetatable(newt, {__index = createIndex(inherit),
+                      __newindex = newIndex})
+  createcontrol(newt)
+  return newt
 end
 
 ----------------------------------------------------------------------------
@@ -106,17 +117,37 @@ local function search (path, name)
   return nil
 end
 
-local function new_require_and_module(ng)
-  local _p = _G.package
-  local loaded = {}
+local function new_require_and_module(ng, currg)
+  local _p = currg.package
+  local loaded = newcontrolledtable(_p.loaded)
   -- build a copy of `package' table
-  local package = { path = _p.path, cpath = _p.cpath, loaded = loaded, }
+  local package = newcontrolledtable(_p)
+  package.path = _p.path
+  package.cpath = _p.cpath
+  package.loaded = loaded
+  package.loaders = _p.loaders
   ng.package = package
   local module = _G.module
   local getfield, setfield = getfield, setfield
 
   -- redefine `require'
   local new_req = function(name)
+    assert(type(name) == "string", string.format(
+      "bad argument #1 to `require' (string expected, got %s)", type(name)))
+    local p = getfield(loaded, name)
+    if p then return p end
+    -- first mark it as loaded
+    setfield(loaded, name, true)
+    --local f = load(name)
+    --setfield(preload, name, f)
+    local actual_arg = arg
+    arg = { name }
+    loaded[name] = load(name)(name) or true
+    --loaded[name] = f(name) or true
+    arg = actual_arg
+    return getfield(loaded, name)
+  end
+--[[
     -- test if module was loaded in this environment
     if not loaded[name] then
       loaded[name] = true
@@ -148,6 +179,7 @@ local function new_require_and_module(ng)
     end
     return loaded[name]
   end
+--]]
   -- redefine `module'
   local new_mod = function(name)
     local _G = ng
@@ -170,6 +202,21 @@ local function new_require_and_module(ng)
   return new_req, new_mod
 end
 
+local function clonetable (t, n)
+if not n then n = 1 end
+  local newt = {}
+  for i, v in pairs(t) do
+    if i ~= "base" then
+      if type(v) == "table" then
+        newt[i] = clonetable (v, n+1)
+      else
+        newt[i] = v
+      end
+    end
+  end
+  return newt
+end
+
 ----------------------------------------------------------------------------
 -- Creates a virtual environment for the given function
 ----------------------------------------------------------------------------
@@ -178,14 +225,19 @@ function venv(f)
     error("bad argument #1 to venv ('function' expected got '"..type(f).."')")
   end
   local currg = getfenv(0)
-  local ng = {}
-  
-  setmetatable(ng, {__index = createIndex(currg),
-                    __newindex = newIndex})
-  createcontrol(ng)
-
+  local ng = newcontrolledtable(currg)
   ng._G = ng
-  ng.require, ng.module = new_require_and_module(ng)
+  ng.package = clonetable (currg.package)
+
+  local env = { package = ng.package, loaded = ng.package.loaded, _G = ng, }
+  setfenv(ng.require, env)
+  setfenv(ng.module, env)
+  local i = 1
+  local loaders = ng.package.loaders
+  while loaders[i] do
+    setfenv(loaders[i], env)
+    i = i+1
+  end
 
   ng.ipairs = ipairs
   ng.next = next
@@ -196,8 +248,11 @@ function venv(f)
 
   return function(...)
            setfenv(0, ng)
-           local result = pack (pcall (f, unpack(arg)))
+           local result = pack (xpcall (function () return f (unpack(arg)) end, debug.traceback))
            setfenv(0, currg)
+           if not result[1] then
+             error(result[2])
+           end
            table.remove (result, 1) -- remove status of pcall
            return unpack(result)
          end
