@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------
--- $Id: venv.lua,v 1.3 2004-07-07 12:46:18 tomas Exp $
+-- $Id: venv.lua,v 1.4 2004-07-20 12:07:43 tomas Exp $
 ----------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------
@@ -19,6 +19,8 @@ end
 local function getcontrol(t, key)
   return _CONTROL[t][key]
 end
+
+local function pack (...) return arg end
 
 ----------------------------------------------------------------------------
 -- "newindex" function for the new environment
@@ -143,7 +145,7 @@ function venv(f)
 
   return function(...)
            setfenv(0, ng)
-           local result = {f(unpack(arg))}
+           local result = pack (f(unpack(arg)))
            setfenv(0, currg)
            return unpack(result)
          end
