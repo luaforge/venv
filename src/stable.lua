@@ -1,12 +1,17 @@
 ----------------------------------------------------------------------------
 -- Stable: State persistent table.
 -- An official way to bypass VEnv.
--- $Id: stable.lua,v 1.1 2005-03-24 18:36:30 tomas Exp $
+-- $Id: stable.lua,v 1.2 2005-03-28 17:51:35 tomas Exp $
 ----------------------------------------------------------------------------
 
 local next = next
 
 module ((arg and arg[1]) or "stable")
+
+_COPYRIGHT = "Copyright (C) 2003-2005 Kepler Project"
+_DESCRIPTION = "State persistent table"
+_NAME = "Stable"
+_VERSION = "1.0"
 
 local persistent_table = {}
 

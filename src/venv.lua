@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------
--- $Id: venv.lua,v 1.8 2005-03-22 10:08:12 tomas Exp $
+-- $Id: venv.lua,v 1.9 2005-03-28 17:51:35 tomas Exp $
 ----------------------------------------------------------------------------
 
 local ipairs, pairs = ipairs, pairs
@@ -65,16 +65,13 @@ newcontrolledtable = function (inherit)
   return newt
 end
 
-local function clonetable (t, n)
-if not n then n = 1 end
+local function clonetable (t)
   local newt = {}
   for i, v in pairs(t) do
-    if i ~= "base" then
-      if type(v) == "table" then
-        newt[i] = clonetable (v, n+1)
-      else
-        newt[i] = v
-      end
+    if i ~= "base" and type(v) == "table" then
+      newt[i] = clonetable (v)
+    else
+      newt[i] = v
     end
   end
   return newt
@@ -92,7 +89,12 @@ function venv(f)
   ng._G = ng
   ng.package = clonetable (currg.package)
 
-  local env = { package = ng.package, loaded = ng.package.loaded, _G = ng, }
+  local env = {
+    loaded = ng.package.loaded,
+    loaders = ng.package.loaders,
+    package = ng.package,
+    _G = ng,
+  }
   setfenv(ng.require, env)
   setfenv(ng.module, env)
   local i = 1
