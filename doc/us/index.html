@@ -1,107 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <html>
-
 <head>
+<meta name="generator" content="HTML Tidy, see www.w3.org">
 <title>Lua Virtual Environment</title>
 <style type="text/css">
 ul { list-style-type: disc };
 </style>
 </head>
-
 <body bgcolor="#FFFFFF">
-
 <center>
-<table border=0 cellspacing=2 cellpadding=2>
-<tr><td align=center><a href="http://www.keplerproject.org">
-<img border=0 alt="VEnv" src="venv.png"></a>
-<tr><td align=center><big><b>VEnv</b></big>
-<tr><td align=center valign=top>Lua Virtual Environment
+<table border="0" cellspacing="2" cellpadding="2">
+<tr>
+<td align="center"><a href="http://www.keplerproject.org"><img
+border="0" alt="VEnv" src="venv.png"></a> </td>
+</tr>
+
+<tr>
+<td align="center"><big><b>VEnv</b></big> </td>
+</tr>
+
+<tr>
+<td align="center" valign="top">Lua Virtual Environment</td>
+</tr>
 </table>
 </center>
-<p>
 
-<center><small>
-<a href="#over">overview</a> &middot;
-<a href="#download">download</a> &middot;
-<a href="#examples">examples</a>
-</small></center>
-<p>
+<center><small><a href="#over">overview</a> &middot; <a href=
+"#download">download</a> &middot; <a href=
+"#examples">examples</a></small></center>
 
 <hr>
 <h2>Contents</h2>
-<p>
+
 <ul>
-  <li> <a href="#over">Overview</a>
-  <li> <a href="#version">Current Version</a>
-  <li> <a href="#download">Download</a>
-  <li> <a href="#examples">Examples</a>
-  <li> <a href="#credits">Credits</a>
-  <li> <a href="#contact">Contact us</a>
+<li><a href="#over">Overview</a></li>
+
+<li><a href="#version">Current Version</a></li>
+
+<li><a href="#download">Download</a></li>
+
+<li><a href="#examples">Examples</a></li>
+
+<li><a href="#credits">Credits</a></li>
+
+<li><a href="#contact">Contact us</a></li>
 </ul>
 
-<a name="over"></a>
+<a name="over"></a> 
+
 <h2>Overview</h2>
-<p>
-Lua Virtual Environment is a simple library which provides a way to execute
-a Lua function in a separate environment, protecting the original one.
-<p>
-VEnv is free software and uses the same
-<a href="license.html">license</a>
-as Lua 5.0.
 
+<p>Lua Virtual Environment is a simple library which provides a way
+to execute a Lua function in a separate environment, protecting the
+original one.</p>
 
-<a name="version"></a>
+<p>VEnv is free software and uses the same <a href=
+"license.html">license</a> as Lua 5.0. <a name="version"></a></p>
+
 <h2>Current version</h2>
-<p>
-Current version is 1.0 beta.
-It was developed for Lua 5.0 and Lua 5.1.
-</p>
 
+<p>Current version is 1.0 beta. It was developed for Lua 5.0 and
+Lua 5.1.</p>
 
-<a name="download"></a>
+<a name="download"></a> 
+
 <h2>Download</h2>
-<p>
-VEnv is a Lua library and consists of a single file:
-<a href="venv.lua">venv.lua</a>
-<p>
-VEnv follows the
-<a href="http://www.keplerproject.org/compat">package proposal</a>
-for Lua 5.1,
-therefore this package should be "installed".
-In other words,
-if you are using Lua 5.0,
-the file <tt>compat-5.1.lua</tt> must be installed in the <tt>LUA_PATH</tt>.
-If you are using Lua 5.1,
-nothing should be done.
 
+<p>VEnv is a Lua library and consists of a single file: <a href=
+"venv.lua">venv.lua</a></p>
+
+<p>VEnv follows the <a href=
+"http://www.keplerproject.org/compat">package proposal</a> for Lua
+5.1, therefore this package should be "installed". In other words,
+if you are using Lua 5.0, the file <tt>compat-5.1.lua</tt> must be
+installed in the <tt>LUA_PATH</tt>. If you are using Lua 5.1,
+nothing should be done.</p>
 
 <h2>What's new</h2>
-<p>
+
 <ul>
-  <li>[?/?/2004] Version 1.0 beta released
-  <li>[19/Jul/2004] Version 1.0 alpha released
+<li>[?/?/2004] Version 1.0 beta released</li>
+
+<li>[19/Jul/2004] Version 1.0 alpha released</li>
 </ul>
 
-
-<a name="reference">
 <h2>Reference</h2>
 
-<p>
-VEnv provides a single function to do its job:
+<p>VEnv provides a single function to do its job:</p>
+
 <ul>
-  <li> <b><code>venv (func) => function</code></b> <br>
-    Creates a new function which is the virtual environment to execute the
-    given function.  The given function has its environment changed to a
-    specially created one which will inherit any global variable from the
-    original environment.  Function <code>venv</code> returns the new virtual
-    environment created.
+<li><b><code>venv (func) =&gt; function</code></b><br>
+ Creates a new function which is the virtual environment to execute
+the given function. The given function has its environment changed
+to a specially created one which will inherit any global variable
+from the original environment. Function <code>venv</code> returns
+the new virtual environment created.</li>
 </ul>
 
+<a name="examples"></a> 
 
-<a name="examples"></a>
 <h2>Examples</h2>
 
-<p>
-Suppose the file <tt>script.lua</tt> is as follows:
+<p>Suppose the file <tt>script.lua</tt> is as follows:</p>
+
 <pre>
 x = "inside"
 assert((x == "inside"), "error setting/accessing variable x inside VEnv", x)
@@ -109,18 +110,18 @@ assert((os.execute == nil), "os.execute should not be allowed")
 var = 1
 </pre>
 
-<p>
-And here is the main chunk which will execute the above script inside a
-Virtual Environment.
+<p>And here is the main chunk which will execute the above script
+inside a Virtual Environment.</p>
+
 <pre>
 require"venv"
 t1 = { t2 = { t3 = "ok" } }
 x = "outside"
 
 function sb ()
-	assert ((t1.t2.t3 == "ok"), "error accessing multi-indexed variable")
-	os.execute = nil
-	loadfile ("script.lua")()
+    assert ((t1.t2.t3 == "ok"), "error accessing multi-indexed variable")
+    os.execute = nil
+    loadfile ("script.lua")()
 end
 
 local prot = venv (sb)
@@ -130,36 +131,27 @@ assert ((var == nil), "VEnv modified external environment!")
 assert ((os.execute ~= nil), "VEnv modified external environment!")
 </pre>
 
+<a name="credits"></a> 
 
-<a name="credits"></a>
 <h2>Credits</h2>
 
-<p>
-VEnv was designed by Roberto Ierusalimschy, Ana L&uacute;cia de Moura,
-Andr&eacute; Carregal and Tom&aacute;s Guisasola as part of
-<a href="http://www.keplerproject.org">The Kepler Project</a>
-which holds its copyright.
-It was implemented by Ana L&uacute;cia de Moura.
-</p>
+<p>VEnv was designed by Roberto Ierusalimschy, Ana L&uacute;cia de
+Moura, Andr&eacute; Carregal and Tom&aacute;s Guisasola as part of
+<a href="http://www.keplerproject.org">The Kepler Project</a> which
+holds its copyright. It was implemented by Ana L&uacute;cia de
+Moura.</p>
 
+<a name="contact"></a> 
 
-<a name="contact"></a>
 <h2>Contact us</h2>
 
-<p>
-For more information please
-<a href="mailto:info-NO-SPAM-THANKS@keplerproject.org">contact us</a>.
-Comments are welcome!
-</p>
+<p>For more information please <a href=
+"mailto:info-NO-SPAM-THANKS@keplerproject.org">contact us</a>.
+Comments are welcome!</p>
 
-
-
-<p>
 <hr>
-<small>
-$Id: index.html,v 1.5 2004-11-11 13:39:57 tomas Exp $
-</small>
-
+<small>$Id: index.html,v 1.5 2004/11/11 13:39:57 tomas Exp
+$</small>
 </body>
 </html>
 
