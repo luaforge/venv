@@ -25,65 +25,73 @@ border="0" alt="VEnv" src="venv.png"></a> </td>
 </table>
 </center>
 
-<center><small><a href="#over">overview</a> &middot; <a href=
-"#download">download</a> &middot; <a href=
-"#examples">examples</a></small></center>
+<center><small>
+<a href="#over">overview</a> &middot;
+<a href="#download">download</a> &middot;
+<a href="#new">news</a> &middot;
+<a href="#reference">reference</a> &middot;
+<a href="#examples">examples</a>
+</small></center>
 
 <hr>
 <h2>Contents</h2>
 
 <ul>
 <li><a href="#over">Overview</a></li>
-
 <li><a href="#version">Current Version</a></li>
-
 <li><a href="#download">Download</a></li>
-
+<li><a href="#new">What's new</a></li>
+<li><a href="#reference">Reference</a></li>
 <li><a href="#examples">Examples</a></li>
-
 <li><a href="#credits">Credits</a></li>
-
 <li><a href="#contact">Contact us</a></li>
 </ul>
 
 <a name="over"></a> 
-
 <h2>Overview</h2>
 
 <p>Lua Virtual Environment is a simple library which provides a way
 to execute a Lua function in a separate environment, protecting the
 original one.</p>
 
-<p>VEnv is free software and uses the same <a href=
-"license.html">license</a> as Lua 5.0. <a name="version"></a></p>
+<p>VEnv is free software and uses the same
+<a href="license.html">license</a> as Lua 5.0.
+</p>
 
+<a name="version"></a>
 <h2>Current version</h2>
 
 <p>Current version is 1.0 beta. It was developed for Lua 5.0 and
 Lua 5.1.</p>
 
 <a name="download"></a> 
-
 <h2>Download</h2>
 
-<p>VEnv is a Lua library and consists of a single file: <a href=
-"venv.lua">venv.lua</a></p>
+<p>
+VEnv can be downloaded from its
+<a href="http://luaforge.net/project/showfiles.php?group_id=61">LuaForge</a>
+page.
+</p>
 
-<p>VEnv follows the <a href=
-"http://www.keplerproject.org/compat">package proposal</a> for Lua
-5.1, therefore this package should be "installed". In other words,
-if you are using Lua 5.0, the file <tt>compat-5.1.lua</tt> must be
-installed in the <tt>LUA_PATH</tt>. If you are using Lua 5.1,
-nothing should be done.</p>
-
+<a name="new"></a>
 <h2>What's new</h2>
 
 <ul>
-<li>[?/?/2004] Version 1.0 beta released</li>
-
+<li>[2/dec/2004] Version 1.0 beta released</li>
 <li>[19/Jul/2004] Version 1.0 alpha released</li>
 </ul>
 
+<p>
+VEnv 1.0 beta follows the
+<a href="http://www.keplerproject.org/compat">package proposal</a>
+for Lua 5.1, therefore this package should be "installed".
+In other words,
+if you are using Lua 5.0, the file <tt>compat-5.1.lua</tt> must be
+installed in the <tt>LUA_PATH</tt>. If you are using Lua 5.1,
+nothing should be done.
+</p>
+
+<a name="reference"></a>
 <h2>Reference</h2>
 
 <p>VEnv provides a single function to do its job:</p>
@@ -98,7 +106,6 @@ the new virtual environment created.</li>
 </ul>
 
 <a name="examples"></a> 
-
 <h2>Examples</h2>
 
 <p>Suppose the file <tt>script.lua</tt> is as follows:</p>
@@ -132,7 +139,6 @@ assert ((os.execute ~= nil), "VEnv modified external environment!")
 </pre>
 
 <a name="credits"></a> 
-
 <h2>Credits</h2>
 
 <p>VEnv was designed by Roberto Ierusalimschy, Ana L&uacute;cia de
@@ -142,7 +148,6 @@ holds its copyright. It was implemented by Ana L&uacute;cia de
 Moura.</p>
 
 <a name="contact"></a> 
-
 <h2>Contact us</h2>
 
 <p>For more information please <a href=
