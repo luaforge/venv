@@ -1,6 +1,8 @@
 ----------------------------------------------------------------------------
--- $Id: venv.lua,v 1.5 2004-09-28 14:55:33 tomas Exp $
+-- $Id: venv.lua,v 1.6 2005-02-23 11:51:25 tomas Exp $
 ----------------------------------------------------------------------------
+
+local preload = package.preload
 
 ----------------------------------------------------------------------------
 -- control to prevent an explicitly set global to be re-inherited
@@ -21,6 +23,31 @@ local function getcontrol(t, key)
 end
 
 local function pack (...) return arg end
+
+--
+-- auxiliar function to read "nested globals"
+--
+local function getfield (t, f)
+  for w in string.gfind(f, "[%w_]+") do
+    if not t then return nil end
+    t = t[w]
+  end
+  return t
+end
+
+
+--
+-- auxiliar function to write "nested globals"
+--
+local function setfield (t, f, v)
+  for w in string.gfind(f, "([%w_]+)%.") do
+    t[w] = t[w] or {} -- create table if absent
+    t = t[w]            -- get the table
+  end
+  local w = string.gsub(f, "[%w_]+%.", "")   -- get last field name
+  t[w] = v            -- do the assignment
+end
+
 
 ----------------------------------------------------------------------------
 -- "newindex" function for the new environment
@@ -79,26 +106,37 @@ local function search (path, name)
   return nil
 end
 
-local function new_require(ng)
-  return function(name)
+local function new_require_and_module(ng)
+  local _p = _G.package
+  local loaded = {}
+  -- build a copy of `package' table
+  local package = { path = _p.path, cpath = _p.cpath, loaded = loaded, }
+  ng.package = package
+  local module = _G.module
+  local getfield, setfield = getfield, setfield
+
+  -- redefine `require'
+  local new_req = function(name)
     -- test if module was loaded in this environment
-    if not ng.package.loaded[name] then
-      ng.package.loaded[name] = true
+    if not loaded[name] then
+      loaded[name] = true
       -- test if the module is stored in the global environment
-      local f = ng.package.preload[name]
+      local f = preload[name]
       if not f then
         local filename = string.gsub(name, "%.", "/")
-        local fullname = search(ng.package.cpath, filename)
+        local fullname = search(package.cpath, filename)
         if fullname then
           local openfunc = "luaopen_"..string.gsub(name, "%.", "")
           f = assert(loadlib(fullname, openfunc))
         else
-          fullname = search(ng.package.path, filename)
+          fullname = search(package.path, filename)
           if not fullname then
-            error("cannot find "..name.." in path "..ng.package.path.." nor in "..ng.package.cpath, 2)
+            error("cannot find "..name.." in path "..package.path.." nor in "..package.cpath, 2)
           end
           f = assert(loadfile(fullname))
         end
+        -- store module in the global environment
+        preload[name] = f
       end
       -- run module inside virtual environment if not loaded yet
       pcall (setfenv, f, ng)
@@ -106,10 +144,30 @@ local function new_require(ng)
       ng.arg = { name }
       local res = f(name)
       ng.arg = old_arg
-      if res then ng.package.loaded[name] = res end
+      if res then loaded[name] = res end
     end
-    return ng.package.loaded[name]
+    return loaded[name]
   end
+  -- redefine `module'
+  local new_mod = function(name)
+    local _G = ng
+    local ns = getfield(_G, name)
+    if not ns then
+      ns = {}
+      setfield(_G, name, ns)
+    elseif type(ns) ~= "table" then
+      error("name conflict for module `"..name.."'")
+    end
+    if not ns._NAME then
+      ns._NAME = name
+      ns._PACKAGE = string.gsub(name, "[^.]*$", "")
+    end
+    setmetatable(ns, {__index = _G})
+    loaded[name] = ns
+    setfenv(2, ns)
+    return ns
+  end
+  return new_req, new_mod
 end
 
 ----------------------------------------------------------------------------
@@ -127,7 +185,7 @@ function venv(f)
   createcontrol(ng)
 
   ng._G = ng
-  ng.require = new_require(ng)
+  ng.require, ng.module = new_require_and_module(ng)
 
   ng.ipairs = ipairs
   ng.next = next
