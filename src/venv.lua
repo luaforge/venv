@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------
--- $Id: venv.lua,v 1.4 2004-07-20 12:07:43 tomas Exp $
+-- $Id: venv.lua,v 1.5 2004-09-28 14:55:33 tomas Exp $
 ----------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------
@@ -55,10 +55,9 @@ end
 -- Redefinition of 'require', allowing libraries to be stored in the
 -- global environment but executed within a virtual environment
 ----------------------------------------------------------------------------
-local _STOREDLIBS = {}
 
 local function getpath(ng)
-  local path = ng.LUA_PATH
+  local path = ng._PATH
   if type(path) ~= "string" then
     path = os.getenv("LUA_PATH")
     if path == nil then
@@ -68,53 +67,48 @@ local function getpath(ng)
   return path
 end
 
-local function new_require(ng)
-  return function(lib)
-    -- test if module was loaded in this environment
-    local res = ng._LOADED[lib]
-    if res then
-      return res
+local function search (path, name)
+  for c in string.gfind(path, "[^;]+") do
+    c = string.gsub(c, "%?", name)
+    local f = io.open(c)
+    if f then   -- file exist?
+      f:close()
+      return c
     end
+  end
+  return nil
+end
 
-    -- test if the module is stored in the global environment
-    local libfunction = _STOREDLIBS[lib]
-    if type(libfunction) ~= "function" then
-      libfunction = nil
-      local path = getpath(ng)
-      local comppath = string.gsub(path,"?",lib)
-      for p in string.gfind(comppath, "([^;]+)") do
-        local fh = io.open(p,"r")
-        if fh then
-          fh:close()
-          local l, err = loadfile(p)
-          if l then
-            libfunction = l ; break
-          else
-            error (err)
+local function new_require(ng)
+  return function(name)
+    -- test if module was loaded in this environment
+    if not ng.package.loaded[name] then
+      ng.package.loaded[name] = true
+      -- test if the module is stored in the global environment
+      local f = ng.package.preload[name]
+      if not f then
+        local filename = string.gsub(name, "%.", "/")
+        local fullname = search(ng.package.cpath, filename)
+        if fullname then
+          local openfunc = "luaopen_"..string.gsub(name, "%.", "")
+          f = assert(loadlib(fullname, openfunc))
+        else
+          fullname = search(ng.package.path, filename)
+          if not fullname then
+            error("cannot find "..name.." in path "..ng.package.path.." nor in "..ng.package.cpath, 2)
           end
+          f = assert(loadfile(fullname))
         end
       end
-      if libfunction then
-        _STOREDLIBS[lib] = libfunction
-      else
-        error("couldn't load package '"..lib.."' from path '"..path.."'")
-        return
-      end
+      -- run module inside virtual environment if not loaded yet
+      pcall (setfenv, f, ng)
+      local old_arg = ng.arg
+      ng.arg = { name }
+      local res = f(name)
+      ng.arg = old_arg
+      if res then ng.package.loaded[name] = res end
     end
-    
-    -- run module inside virtual environment if not loaded yet
-    local reqname = ng._REQUIREDNAME
-    ng._REQUIREDNAME = lib
-    if res ~= false then
-      setfenv(libfunction, ng)
-    end
-    res = libfunction()
-    ng._REQUIREDNAME = reqname
-    if res == nil then
-      res = true
-    end
-    ng._LOADED[lib] = res
-    return res
+    return ng.package.loaded[name]
   end
 end
 
@@ -133,7 +127,6 @@ function venv(f)
   createcontrol(ng)
 
   ng._G = ng
-  ng._LOADED = {}
   ng.require = new_require(ng)
 
   ng.ipairs = ipairs
@@ -145,8 +138,9 @@ function venv(f)
 
   return function(...)
            setfenv(0, ng)
-           local result = pack (f(unpack(arg)))
+           local result = pack (pcall (f, unpack(arg)))
            setfenv(0, currg)
+           table.remove (result, 1) -- remove status of pcall
            return unpack(result)
          end
 end
