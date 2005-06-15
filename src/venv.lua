@@ -1,5 +1,10 @@
 ----------------------------------------------------------------------------
--- $Id: venv.lua,v 1.9 2005-03-28 17:51:35 tomas Exp $
+-- VEnv (Lua Virtual Environment) is a simple library which provides a way
+-- to execute a Lua function in a separate environment, protecting the
+-- original one.
+--
+-- Copyright (c) 2004-2005 Kepler Project
+-- $Id: venv.lua,v 1.10 2005-06-15 20:22:01 carregal Exp $
 ----------------------------------------------------------------------------
 
 local ipairs, pairs = ipairs, pairs

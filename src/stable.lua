@@ -1,7 +1,9 @@
 ----------------------------------------------------------------------------
 -- Stable: State persistent table.
 -- An official way to bypass VEnv.
--- $Id: stable.lua,v 1.2 2005-03-28 17:51:35 tomas Exp $
+--
+-- Copyright (c) 2004-2005 Kepler Project
+-- $Id: stable.lua,v 1.3 2005-06-15 20:22:01 carregal Exp $
 ----------------------------------------------------------------------------
 
 local next = next
