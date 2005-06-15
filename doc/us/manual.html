@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<title>VEnv: Lua Virtual Environment</title>
+    <link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+
+<div id="container">
+	
+<div id="product">
+	<div id="product_logo"><a href="http://www.keplerproject.org">
+		<img alt="VEnv logo" src="venv.png"/>
+	</a></div>
+	<div id="product_name"><big><b>VEnv</b></big></div>
+	<div id="product_description">Lua Virtual Environment</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+	
+<div id="navigation">
+<h1>VEnv</h1>
+	<ul>
+		<li><a href="index.html">Home</a>
+			<ul>
+				<li><a href="index.html#overview">Overview</a></li>
+				<li><a href="index.html#status">Status</a></li>
+				<li><a href="index.html#download">Download</a></li>
+				<li><a href="index.html#history">History</a></li>
+				<li><a href="index.html#credits">Credits</a></li>
+				<li><a href="index.html#contact">Contact us</a></li>
+			</ul>
+		</li>
+		<li><strong>Manual</strong>
+			<ul>
+				<li><a href="manual.html#install">Installation</a></li>
+				<li><a href="manual.html#reference">Reference</a></li>
+				<li><a href="manual.html#examples">Examples</a></li>
+			</ul>
+		</li>
+		<li><a href="license.html">License</a></li>
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+<h2><a name="install"></a>Installation</h2>
+
+<p>VEnv follows the
+<a href="http://www.keplerproject.org/compat/">package model</a>
+for Lua 5.1, therefore this package should be "installed".
+Refer to
+<a href="http://www.keplerproject.org/compat/manual.html#configuration">
+Compat-5.1 configuration</a> section about how to install the module properly.</p>
+
+<h2><a name="reference"></a>Reference</h2>
+
+<p>VEnv provides a single function:</p>
+
+<dl>
+    <dt><strong>venv (func)</strong><dt>
+    <dd>Creates a new function which is the virtual environment to execute
+    the given function. The given function has its environment changed
+    to a specially created one which will inherit any global variable
+    from the original environment. Function <code>venv</code> returns
+    the new virtual environment created.</dd>
+</dl>
+
+
+<h2><a name="examples"></a>Examples</h2>
+
+<p>Suppose the file <code>script.lua</code> is as follows:</p>
+
+<pre class="example">
+x = "inside"
+assert((x == "inside"),
+       "error setting/accessing variable x inside VEnv", x)
+assert((os.execute == nil),
+       "os.execute should not be allowed")
+var = 1
+</pre>
+
+<p>And now suppose that you want to execute the above script inside a
+Virtual Environment:</p>
+
+<pre class="example">
+require"venv"
+t1 = { t2 = { t3 = "ok" } }
+x = "outside"
+
+function risky()
+    assert ((t1.t2.t3 == "ok"),
+            "error accessing multi-indexed variable")
+    os.execute = nil
+    loadfile ("script.lua")()
+end
+
+local prot = venv (risky)
+prot ()
+assert ((x == "outside"),
+        "variable x modified by VEnv!")
+assert ((var == nil),
+        "VEnv modified external environment!")
+assert ((os.execute ~= nil),
+        "VEnv modified external environment!")
+</pre>
+
+<p>Running the above chunk should report no errors, since VEnv will garantee that:</p>
+
+<ul>
+    <li>Inside function <code>risky</code> the access to <code>t1.t2.t3</code> is granted.</li>
+    <li>After the call to <code>prot</code> (the protected version of <code>risky</code>)
+    the values of <code>x</code>, <code>var</code> and <code>os.execute</code> are the same as
+    before the call.</li>
+</ul>
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+	<p><small>
+	$Id: manual.html,v 1.1 2005-06-15 19:52:41 carregal Exp $
+	</small></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html> 
