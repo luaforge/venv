@@ -4,7 +4,7 @@
 -- original one.
 --
 -- Copyright (c) 2004-2005 Kepler Project
--- $Id: venv.lua,v 1.10 2005-06-15 20:22:01 carregal Exp $
+-- $Id: venv.lua,v 1.11 2005-06-16 17:20:00 tomas Exp $
 ----------------------------------------------------------------------------
 
 local ipairs, pairs = ipairs, pairs
@@ -73,7 +73,7 @@ end
 local function clonetable (t)
   local newt = {}
   for i, v in pairs(t) do
-    if i ~= "base" and type(v) == "table" then
+    if i ~= "base" and i ~= "_M" and type(v) == "table" then
       newt[i] = clonetable (v)
     else
       newt[i] = v
