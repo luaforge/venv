@@ -4,8 +4,10 @@
 -- original one.
 --
 -- Copyright (c) 2004-2005 Kepler Project
--- $Id: venv.lua,v 1.11 2005-06-16 17:20:00 tomas Exp $
+-- $Id: venv.lua,v 1.12 2005-06-20 20:40:08 tomas Exp $
 ----------------------------------------------------------------------------
+
+_VENV = "VEnv 1.1.0"
 
 local ipairs, pairs = ipairs, pairs
 

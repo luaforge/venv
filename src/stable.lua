@@ -3,7 +3,7 @@
 -- An official way to bypass VEnv.
 --
 -- Copyright (c) 2004-2005 Kepler Project
--- $Id: stable.lua,v 1.3 2005-06-15 20:22:01 carregal Exp $
+-- $Id: stable.lua,v 1.4 2005-06-20 20:40:08 tomas Exp $
 ----------------------------------------------------------------------------
 
 local next = next
@@ -12,8 +12,7 @@ module ((arg and arg[1]) or "stable")
 
 _COPYRIGHT = "Copyright (C) 2003-2005 Kepler Project"
 _DESCRIPTION = "State persistent table"
-_NAME = "Stable"
-_VERSION = "1.0"
+_VERSION = "Stable 1.0"
 
 local persistent_table = {}
 
