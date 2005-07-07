@@ -4,7 +4,7 @@
 -- original one.
 --
 -- Copyright (c) 2004-2005 Kepler Project
--- $Id: venv.lua,v 1.12 2005-06-20 20:40:08 tomas Exp $
+-- $Id: venv.lua,v 1.13 2005-07-07 13:09:35 tomas Exp $
 ----------------------------------------------------------------------------
 
 _VENV = "VEnv 1.1.0"
@@ -116,11 +116,13 @@ function venv(f)
   ng.tostring = tostring
   ng.__pow = __pow
 
-  setfenv(f, ng)
+  local currenv = getfenv(f)
 
   return function(...)
            setfenv(0, ng)
+           setfenv(f, ng)
            local result = pack (xpcall (function () return f (unpack(arg)) end, debug.traceback))
+           setfenv(f, currenv)
            setfenv(0, currg)
            if not result[1] then
              error(result[2])
