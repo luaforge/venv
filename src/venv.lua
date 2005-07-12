@@ -4,10 +4,10 @@
 -- original one.
 --
 -- Copyright (c) 2004-2005 Kepler Project
--- $Id: venv.lua,v 1.14 2005-07-08 19:13:31 carregal Exp $
+-- $Id: venv.lua,v 1.15 2005-07-12 14:35:34 uid20013 Exp $
 ----------------------------------------------------------------------------
 
-_VENV = "VEnv 1.1"
+_VENV = "VEnv 1.2.0"
 
 local ipairs, pairs = ipairs, pairs
 
@@ -91,24 +91,25 @@ function venv(f)
   if type(f) ~= "function" then
     error("bad argument #1 to venv ('function' expected got '"..type(f).."')")
   end
-  local currg = getfenv(0)
+  local currg = getfenv(f)
   local ng = newcontrolledtable(currg)
   ng._G = ng
-  ng.package = clonetable (currg.package)
-
-  local env = {
-    loaded = ng.package.loaded,
-    loaders = ng.package.loaders,
-    package = ng.package,
-    _G = ng,
-  }
-  setfenv(ng.require, env)
-  setfenv(ng.module, env)
-  local i = 1
-  local loaders = ng.package.loaders
-  while loaders[i] do
-    setfenv(loaders[i], env)
-    i = i+1
+  if ng.require or ng.module then
+    ng.package = clonetable (currg.package)
+    local env = {
+      loaded = ng.package.loaded,
+      loaders = ng.package.loaders,
+      package = ng.package,
+      _G = ng,
+    }
+    setfenv(ng.require, env)
+    setfenv(ng.module, env)
+    local i = 1
+    local loaders = ng.package.loaders
+    while loaders[i] do
+      setfenv(loaders[i], env)
+      i = i+1
+    end
   end
 
   ng.ipairs = ipairs
@@ -116,14 +117,14 @@ function venv(f)
   ng.tostring = tostring
   ng.__pow = __pow
 
-  local currenv = getfenv(f)
+  local curr0 = getfenv(0)
 
   return function(...)
            setfenv(0, ng)
            setfenv(f, ng)
            local result = pack (xpcall (function () return f (unpack(arg)) end, debug.traceback))
-           setfenv(f, currenv)
-           setfenv(0, currg)
+           setfenv(f, currg)
+           setfenv(0, curr0)
            if not result[1] then
              error(result[2])
            end
