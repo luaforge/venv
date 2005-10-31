@@ -1,15 +1,15 @@
-print("\n** lib '".._REQUIREDNAME.."' loaded **")
+print("\n** lib '"..arg[1].."' loaded **")
 assert((_G ~= GLOBAL), "lib is not inside a venv!")
+-- current globals table should the same of the current running VEnv
+assert(tostring(_G) == execs[VirtualEnv][Run]._G, "wrong environment!")
 
+--[[
 print("\nglobals in lib2 environment")
 local g=""
---for i,v in pairs(_G) do print(i,'>',type(v)) end
 for i in pairs(_G) do g = g.." "..i end
 print(g)
+--]]
 
-local Public = {}
-lib2 = Public
-
-setfenv (1, Public)
+module ("lib2")
 
 function wq(x) return x..x end

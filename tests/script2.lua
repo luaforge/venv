@@ -1,14 +1,17 @@
 print("\n** script 2 loaded **")
 assert((_G ~= GLOBAL), "script is not inside a venv!")
+assert(tostring(_G) == execs[VirtualEnv][Run]._G, "wrong environment!")
 
 var1 = "var1"
 assert(GLOBAL.var1 == nil, "venv modified external env!")
 tab = { f1 = "f1", f2="f2"}
 local function f()
+--[[
   print("\nglobals in nested environment: ")
   local g=""
   for i in pairs(_G) do g = g.." "..i end
   print(g)
+--]]
 
   assert(var1 == "var1", "error inheriting global")
   assert(string.lower("ANA") == "ana", "error inheriting global")
